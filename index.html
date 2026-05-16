@@ -1,146 +1,443 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Esports Analyzer</title>
-
+  <title>Valorant Role Analyzer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
-    body{
-      background: #111827;
+    :root {
+      --bg: #0a0c10;
+      --surface: #111520;
+      --surface2: #181d2a;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.14);
+      --red: #ff4655;
+      --red-dim: rgba(255,70,85,0.12);
+      --teal: #00d4aa;
+      --teal-dim: rgba(0,212,170,0.12);
+      --purple: #7b5ea7;
+      --purple-dim: rgba(123,94,167,0.14);
+      --amber: #f5a623;
+      --amber-dim: rgba(245,166,35,0.12);
+      --text: #e8eaf0;
+      --muted: #7a8099;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sarabun', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -40%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 500px;
+      background: radial-gradient(ellipse, rgba(255,70,85,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .game-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--red-dim);
+      border: 0.5px solid rgba(255,70,85,0.3);
+      color: var(--red);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      padding: 5px 14px;
+      border-radius: 2px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .game-tag::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    h1 span { color: var(--red); }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: 4px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+
+    .card.answered {
+      border-color: var(--border2);
+    }
+
+    .q-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .q-num {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--red);
+      text-transform: uppercase;
+    }
+
+    .q-line {
+      flex: 1;
+      height: 0.5px;
+      background: var(--border);
+    }
+
+    .q-text {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+
+    .toggle-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tog {
+      flex: 1;
+      padding: 10px;
+      background: var(--surface2);
+      border: 0.5px solid var(--border2);
+      border-radius: 3px;
+      color: var(--muted);
+      font-family: 'Sarabun', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .tog:hover {
+      color: var(--text);
+      border-color: rgba(255,255,255,0.25);
+    }
+
+    .tog.yes {
+      background: var(--teal-dim);
+      border-color: rgba(0,212,170,0.5);
+      color: var(--teal);
+    }
+
+    .tog.no {
+      background: var(--red-dim);
+      border-color: rgba(255,70,85,0.4);
+      color: var(--red);
+    }
+
+    .analyze-btn {
+      width: 100%;
+      padding: 15px;
+      margin-top: 8px;
+      background: var(--red);
+      border: none;
+      border-radius: 3px;
       color: white;
-      font-family: Arial, sans-serif;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+      overflow: hidden;
     }
 
-    .box{
-      background:#1f2937;
-      padding:30px;
-      border-radius:20px;
-      width:350px;
-      box-shadow:0 0 20px rgba(0,0,0,0.5);
+    .analyze-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.15s;
     }
 
-    h1{
-      text-align:center;
-      margin-bottom:20px;
+    .analyze-btn:hover::after { background: rgba(255,255,255,0.08); }
+    .analyze-btn:active { transform: scale(0.99); }
+
+    .result {
+      display: none;
+      margin-top: 16px;
+      background: var(--surface);
+      border: 0.5px solid var(--border2);
+      border-radius: 4px;
+      padding: 2rem;
+      text-align: center;
+      animation: slideUp 0.35s cubic-bezier(0.16,1,0.3,1);
     }
 
-    .question{
-      margin-bottom:15px;
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    button{
-      width:100%;
-      padding:12px;
-      border:none;
-      border-radius:10px;
-      background:#3b82f6;
-      color:white;
-      font-size:16px;
-      cursor:pointer;
-      margin-top:15px;
+    .result-role {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
     }
 
-    button:hover{
-      background:#2563eb;
+    .result-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+      line-height: 1.1;
     }
 
-    #result{
-      margin-top:20px;
-      text-align:center;
-      font-size:18px;
-      font-weight:bold;
+    .result-divider {
+      width: 40px;
+      height: 2px;
+      margin: 0 auto 16px;
+      border-radius: 1px;
+    }
+
+    .result-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+
+    .agent-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .agent-tag {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 2px;
+      border: 0.5px solid;
+    }
+
+    .err-msg {
+      display: none;
+      margin-top: 12px;
+      padding: 10px 16px;
+      background: var(--red-dim);
+      border: 0.5px solid rgba(255,70,85,0.3);
+      border-radius: 3px;
+      color: var(--red);
+      font-size: 13px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <div class="box">
-    <h1>🎮 AI Esports varolant analyzer</h1>
-
-    <div class="question">
-      <p>ชอบบุกไหม?</p>
-      <select id="q1">
-        <option value="yes">Yes</option>
-        <option value="no">No</option>
-      </select>
-    </div>
-
-    <div class="question">
-      <p>ชอบช่วยทีมไหม?</p>
-      <select id="q2">
-        <option value="yes">Yes</option>
-        <option value="no">No</option>
-      </select>
-    </div>
-
-    <div class="question">
-      <p>ชอบวางแผนไหม?</p>
-      <select id="q3">
-        <option value="yes">Yes</option>
-        <option value="no">No</option>
-      </select>
-    </div>
-
-    <div class="question">
-      <p>ชอบใช้สกิลมั้ย</p>
-      <select id="q1">
-        <option value="yes">Yes</option>
-        <option value="no">No</option>
-      </select>
-    </div>
-
-    <button onclick="analyze()">Analyze</button>
-
-    <div id="result"></div>
+<div class="container">
+  <div class="header">
+    <div class="game-tag">Valorant Role Analyzer</div>
+    <h1>คุณเป็นสาย<span>ไหน</span>?</h1>
+    <p class="subtitle">ตอบคำถาม 3 ข้อเพื่อค้นหาบทบาทของคุณในเกม</p>
   </div>
 
-  <script>
-    function analyze(){
+  <div class="card" id="c1">
+    <div class="q-meta">
+      <span class="q-num">ข้อ 01</span>
+      <div class="q-line"></div>
+    </div>
+    <p class="q-text">คุณชอบบุกและเปิดเกมก่อนใช่ไหม?</p>
+    <div class="toggle-row">
+      <button class="tog" onclick="pick('q1','yes',this)">ใช่ มาก</button>
+      <button class="tog" onclick="pick('q1','no',this)">ไม่ค่อยเลย</button>
+    </div>
+  </div>
 
-      let attack = 0;
-      let support = 0;
-      let strategy = 0;
+  <div class="card" id="c2">
+    <div class="q-meta">
+      <span class="q-num">ข้อ 02</span>
+      <div class="q-line"></div>
+    </div>
+    <p class="q-text">คุณชอบช่วยเหลือและซัพพอร์ตเพื่อนร่วมทีมใช่ไหม?</p>
+    <div class="toggle-row">
+      <button class="tog" onclick="pick('q2','yes',this)">ใช่ มาก</button>
+      <button class="tog" onclick="pick('q2','no',this)">ไม่ค่อยเลย</button>
+    </div>
+  </div>
 
-      let q1 = document.getElementById("q1").value;
-      let q2 = document.getElementById("q2").value;
-      let q3 = document.getElementById("q3").value;
+  <div class="card" id="c3">
+    <div class="q-meta">
+      <span class="q-num">ข้อ 03</span>
+      <div class="q-line"></div>
+    </div>
+    <p class="q-text">คุณชอบวางแผนและคิดกลยุทธ์ใช่ไหม?</p>
+    <div class="toggle-row">
+      <button class="tog" onclick="pick('q3','yes',this)">ใช่ มาก</button>
+      <button class="tog" onclick="pick('q3','no',this)">ไม่ค่อยเลย</button>
+    </div>
+  </div>
 
-      if(q1 === "yes"){
-        attack++;
-      }else{
-        strategy++;
-      }
+  <button class="analyze-btn" onclick="analyze()">วิเคราะห์บทบาท →</button>
+  <div class="err-msg" id="err">กรุณาตอบให้ครบทุกข้อก่อนนะ</div>
 
-      if(q2 === "yes"){
-        support++;
-      }
+  <div class="result" id="result">
+    <div class="result-role" id="r-role"></div>
+    <div class="result-title" id="r-title"></div>
+    <div class="result-divider" id="r-div"></div>
+    <div class="result-desc" id="r-desc"></div>
+    <div class="agent-row" id="r-agents"></div>
+  </div>
+</div>
 
-      if(q3 === "yes"){
-        strategy++;
-      }else{
-        attack++;
-      }
-  
-      let result = "";
+<script>
+  const ans = { q1: null, q2: null, q3: null };
 
-      if(attack > support && attack > strategy){
-        result = "🔥 คุณเป็นสาย Aggressive Player";
-      }
-      else if(support > attack && support > strategy){
-        result = "💙 คุณเป็นสาย Support Player";
-      }
-      else{
-        result = "🧠 คุณเป็นสาย Strategist";
-      }
+  function pick(q, v, el) {
+    ans[q] = v;
+    const row = el.parentElement;
+    row.querySelectorAll('.tog').forEach(b => b.className = 'tog');
+    el.classList.add(v === 'yes' ? 'yes' : 'no');
+    document.getElementById('c' + q.slice(1)).classList.add('answered');
+  }
 
-      document.getElementById("result").innerHTML = result;
+  const roles = {
+    duelist: {
+      role: 'Duelist',
+      title: 'Aggressive Player',
+      color: '#ff4655',
+      desc: 'คุณชอบสร้างโอกาสด้วยตัวเอง กล้าเปิดเกม กล้าเสี่ยง เหมาะกับสาย Duelist ที่ต้องการฝีมือในการยิงและความกล้า',
+      agents: ['Jett', 'Reyna', 'Neon', 'Yoru']
+    },
+    sentinel: {
+      role: 'Sentinel',
+      title: 'Support Player',
+      color: '#00d4aa',
+      desc: 'คุณให้ความสำคัญกับทีมมากกว่าตัวเอง ช่วยดูแลและปกป้องเพื่อน เหมาะกับสาย Sentinel ที่ใช้ทักษะซัพพอร์ต',
+      agents: ['Sage', 'Killjoy', 'Cypher', 'Chamber']
+    },
+    controller: {
+      role: 'Controller',
+      title: 'Strategist',
+      color: '#7b5ea7',
+      desc: 'คุณอ่านเกมเก่ง ชอบวางแผน และสั่งการ เหมาะกับสาย Controller ที่ใช้ Smoke และ Ability ควบคุมพื้นที่',
+      agents: ['Omen', 'Brimstone', 'Viper', 'Astra']
+    },
+    initiator: {
+      role: 'Initiator',
+      title: 'Flex Player',
+      color: '#f5a623',
+      desc: 'คุณปรับตัวได้ทุกสถานการณ์ เล่นได้หลายสไตล์ เหมาะกับสาย Initiator ที่ช่วยทีมเปิดจุดด้วย Ability',
+      agents: ['Sova', 'Breach', 'Fade', 'KAY/O']
     }
-  </script>
+  };
+
+  function analyze() {
+    const { q1, q2, q3 } = ans;
+    const err = document.getElementById('err');
+    const res = document.getElementById('result');
+
+    if (!q1 || !q2 || !q3) {
+      err.style.display = 'block';
+      res.style.display = 'none';
+      return;
+    }
+    err.style.display = 'none';
+
+    let key;
+    if (q1 === 'yes' && q2 === 'no') key = 'duelist';
+    else if (q2 === 'yes' && q1 === 'no' && q3 === 'no') key = 'sentinel';
+    else if (q3 === 'yes') key = 'controller';
+    else key = 'initiator';
+
+    const r = roles[key];
+    document.getElementById('r-role').textContent = r.role;
+    document.getElementById('r-role').style.color = r.color;
+    document.getElementById('r-title').textContent = r.title;
+    document.getElementById('r-title').style.color = r.color;
+    document.getElementById('r-div').style.background = r.color;
+    document.getElementById('r-desc').textContent = r.desc;
+
+    const agRow = document.getElementById('r-agents');
+    agRow.innerHTML = r.agents.map(a =>
+      `<span class="agent-tag" style="color:${r.color};border-color:${r.color}40;background:${r.color}12">${a}</span>`
+    ).join('');
+
+    res.style.display = 'block';
+    res.style.animation = 'none';
+    void res.offsetWidth;
+    res.style.animation = 'slideUp 0.35s cubic-bezier(0.16,1,0.3,1)';
+  }
+</script>
 
 </body>
 </html>
