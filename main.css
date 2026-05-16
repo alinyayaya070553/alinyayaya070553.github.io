@@ -1,0 +1,16 @@
+body {
+    background-color: lightsteelblue;
+    text-align: center;
+}
+
+h1, h2 {
+    color: rgb(0, 3, 179);
+}
+
+img {
+    display: block;
+    margin: 20px auto;
+    max-width: 100%;
+    height: auto;
+    border-radius: 20px;
+}

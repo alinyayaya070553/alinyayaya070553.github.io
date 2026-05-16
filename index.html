@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Esports Analyzer</title>
+
+  <style>
+    body{
+      background: #111827;
+      color: white;
+      font-family: Arial, sans-serif;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+    }
+
+    .box{
+      background:#1f2937;
+      padding:30px;
+      border-radius:20px;
+      width:350px;
+      box-shadow:0 0 20px rgba(0,0,0,0.5);
+    }
+
+    h1{
+      text-align:center;
+      margin-bottom:20px;
+    }
+
+    .question{
+      margin-bottom:15px;
+    }
+
+    button{
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:#3b82f6;
+      color:white;
+      font-size:16px;
+      cursor:pointer;
+      margin-top:15px;
+    }
+
+    button:hover{
+      background:#2563eb;
+    }
+
+    #result{
+      margin-top:20px;
+      text-align:center;
+      font-size:18px;
+      font-weight:bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h1>🎮 AI Esports varolant analyzer</h1>
+
+    <div class="question">
+      <p>ชอบบุกไหม?</p>
+      <select id="q1">
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <p>ชอบช่วยทีมไหม?</p>
+      <select id="q2">
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <p>ชอบวางแผนไหม?</p>
+      <select id="q3">
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <p>ชอบใช้สกิลมั้ย</p>
+      <select id="q1">
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+    </div>
+
+    <button onclick="analyze()">Analyze</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function analyze(){
+
+      let attack = 0;
+      let support = 0;
+      let strategy = 0;
+
+      let q1 = document.getElementById("q1").value;
+      let q2 = document.getElementById("q2").value;
+      let q3 = document.getElementById("q3").value;
+
+      if(q1 === "yes"){
+        attack++;
+      }else{
+        strategy++;
+      }
+
+      if(q2 === "yes"){
+        support++;
+      }
+
+      if(q3 === "yes"){
+        strategy++;
+      }else{
+        attack++;
+      }
+  
+      let result = "";
+
+      if(attack > support && attack > strategy){
+        result = "🔥 คุณเป็นสาย Aggressive Player";
+      }
+      else if(support > attack && support > strategy){
+        result = "💙 คุณเป็นสาย Support Player";
+      }
+      else{
+        result = "🧠 คุณเป็นสาย Strategist";
+      }
+
+      document.getElementById("result").innerHTML = result;
+    }
+  </script>
+
+</body>
+</html>
